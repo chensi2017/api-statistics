@@ -2,8 +2,9 @@ package com.iiot.stream
 
 import com.iiot.stream.base.{HTBatchStatistics, HTInputDStreamFormat, HTWindowStatistics}
 import com.iiot.stream.tools.{HTLogAnalysisTool, ZookeeperClient}
-import org.apache.spark.KafkaManager
+import org.apache.spark.custom.KafkaManager
 import org.apache.spark.streaming.{Duration, StreamingContext}
+
 
 object HTLogAnalysisContext {
   val zkClent = new ZookeeperClient
@@ -16,7 +17,6 @@ object HTLogAnalysisContext {
     }
     val zkAddr = args(0)
     val ssc = new StreamingContext(HTLogAnalysisTool.initSparkConf(),Duration(3000))
-
     //create kafka stream
     val topic = Set("api.log.filter")
     val map = HTLogAnalysisTool.initKafkaParamters(args(0))

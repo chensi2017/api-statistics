@@ -1,8 +1,9 @@
-package org.apache.spark
+package org.apache.spark.custom
 
 import kafka.common.TopicAndPartition
 import kafka.message.MessageAndMetadata
 import kafka.serializer.{Decoder, StringDecoder}
+import org.apache.spark.SparkException
 import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaCluster.LeaderOffset
@@ -12,7 +13,7 @@ import scala.reflect.ClassTag
 
 class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
   private var kc = new KafkaCluster(kafkaParams)
-
+  val k = KafkaCluster
   /**
     * 创建数据流
     */

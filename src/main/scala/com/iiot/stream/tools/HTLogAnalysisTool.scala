@@ -19,7 +19,7 @@ object HTLogAnalysisTool {
       "socket.receive.buffer.bytes" -> configs.getProperty("socket.receive.buffer.bytes"))
   }
   def initSparkConf(): SparkConf ={
-    new SparkConf().setMaster("local[3]")
+    new SparkConf().setMaster("local[3]")//先写死
       .setAppName("InterfaceLogAnalysis")
       .set("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
       .set("spark.kryo.registrationRequired", "true")
