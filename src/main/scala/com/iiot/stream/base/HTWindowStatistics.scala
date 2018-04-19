@@ -13,6 +13,8 @@ class HTWindowStatistics extends Serializable {
         var jedis:Jedis = null
         try{
           jedis = RedisOperation.getInstance(zkAddrBro.value).getResource()
+          //清除上一次时间窗口在redis中记录的数据
+          jedis.del("api_log_filter_times_persecond")
           iter.foreach(record=>{
             jedis.hset("api_log_filter_times_persecond",record._1,record._2.toString)
           })
