@@ -30,18 +30,18 @@ object HTLogAnalysisContext {
     //broad zookeeper address
     val zkAddrBro = ssc.sparkContext.broadcast(zkAddr)
 
-    //统计1.各个接口累计访问次数; 2.每个接口响应总时长
+    //统计
+    //1.各个接口累计访问次数; 2.每个接口响应总时长
     val batchStatistics = new HTBatchStatistics
     batchStatistics.interfaceStatistics(itemStream,zkAddrBro)
-
     //3.统计每个接口每分钟访问最大次数
     val windowStatistics = new HTWindowStatistics
     windowStatistics.windowStatistics(itemStream,zkAddrBro)
 
     //提交offset
-    /*stream.foreachRDD(rdd=>{
+    stream.foreachRDD(rdd=>{
       km.updateOffsets(rdd)
-    })*/
+    })
 
     ssc.start()
     ssc.awaitTermination()

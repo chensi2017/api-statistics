@@ -7,15 +7,16 @@ import com.iiot.stream.tools.HTLogAnalysisTool
 import org.apache.spark.streaming.dstream.DStream
 
 object HTInputDStreamFormat {
-  def inputDStreamFormat(stream:DStream[(String,String)]):DStream[Item]={
+  def inputDStreamFormat(stream:DStream[(String,String)]):DStream[(String,Item)]={
     stream.mapPartitions(iter=>{
       val mapper = new ObjectMapper().registerModule(DefaultScalaModule)
       var arr=Array[Item]()
       iter.map(s=>{
         try {
+          val date = s._2.substring(0,10);
           var item = mapper.readValue(s._2.substring(s._2.indexOf("{"), s._2.length), classOf[Item])
           item.reqUrl = HTLogAnalysisTool.formateReqUrl(item.reqUrl,item.method)
-          item
+          (date,item)
         }catch {
           case e:Exception=>null
         }

@@ -1,27 +1,47 @@
 package com.iiot.stream.base
+import java.text.SimpleDateFormat
+import java.util.Date
 import com.iiot.stream.bean.Item
 import com.iiot.stream.tools.RedisOperation
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.streaming.Seconds
 import org.apache.spark.streaming.dstream.DStream
-import redis.clients.jedis.Jedis
+import redis.clients.jedis.{Jedis, Pipeline, Response}
+
+import scala.collection.mutable
 
 class HTWindowStatistics extends Serializable {
-  def windowStatistics(itemStream:DStream[Item],zkAddrBro:Broadcast[String]): Unit ={
-    itemStream.map(x=>(x.reqUrl,1)).reduceByKeyAndWindow((a:Int,b:Int)=>a+b,Seconds(60),Seconds(60)).foreachRDD(
+  def windowStatistics(itemStream:DStream[(String,Item)],zkAddrBro:Broadcast[String]): Unit ={
+
+    itemStream.map(x=>(x._2.reqUrl,1)).reduceByKeyAndWindow((a:Int,b:Int)=>a+b,Seconds(60),Seconds(60)).foreachRDD(
       rdd=>{rdd.foreachPartition(iter=>{
         var jedis:Jedis = null
+        var pl:Pipeline = null
         try{
+          val sdf = new SimpleDateFormat("yyyy-MM-dd").format(new Date)
+          val key = s"api_log_filter_times_perminute_$sdf"
           jedis = RedisOperation.getInstance(zkAddrBro.value).getResource()
-          //清除上一次时间窗口在redis中记录的数据
-          jedis.del("api_log_filter_times_persecond")
+          pl = jedis.pipelined()
+          val redisMap = new mutable.HashMap[String,Response[String]]
+          val originMap = new mutable.HashMap[String,Int]()
           iter.foreach(record=>{
-            jedis.hset("api_log_filter_times_persecond",record._1,record._2.toString)
+            val filed = record._1
+            val value = record._2
+            originMap.put(filed,value)
+            redisMap.put(filed,pl.hget(key,filed))
           })
+          pl.sync()
+          originMap.foreach(entry=>{
+            if(redisMap.get(entry._1).get.get()==null||entry._2 > redisMap.get(entry._1).get.get().toInt){
+              pl.hset(key,entry._1,entry._2.toString)
+            }
+          })
+          pl.sync
         }catch {
           case e:Exception=>e.printStackTrace()
         }finally {
           try{
+            pl.close()
             jedis.close()
           }catch {
             case e:Exception=>e.printStackTrace()
