@@ -4,7 +4,6 @@ import com.iiot.stream.tools.RedisOperation
 import org.apache.spark.broadcast.Broadcast
 import org.apache.spark.streaming.dstream.DStream
 import redis.clients.jedis.{Jedis, Pipeline}
-
 import scala.collection.mutable
 
 class HTBatchStatistics extends Serializable {
@@ -16,7 +15,7 @@ class HTBatchStatistics extends Serializable {
         if(it!=null) {
           val key = it._1+"|"+it._2.reqUrl
           val arr = resultMap.getOrElse(key, Array[Long](0, 0))
-          arr(0) = arr(0) + 1             //访问次数
+          arr(0) = arr(0) + 1              //访问次数
           arr(1) = arr(1) + it._2.useTime  //访问时间
           resultMap.put(key, arr)
         }

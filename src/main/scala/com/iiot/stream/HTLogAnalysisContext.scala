@@ -5,7 +5,6 @@ import com.iiot.stream.tools.{HTLogAnalysisTool, ZookeeperClient}
 import org.apache.spark.custom.KafkaManager
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-
 object HTLogAnalysisContext {
   val zkClent = new ZookeeperClient
   var km:KafkaManager = _

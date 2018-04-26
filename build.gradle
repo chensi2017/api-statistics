@@ -36,12 +36,13 @@ shadowJar {
     version = null
     dependencies {
         exclude(dependency('com.htiiot.store:jackson-databind'))
-        exclude(dependency('org.apache.spark::2.1.0'))
+        exclude(dependency('org.apache.spark::2.0.0'))
         exclude(dependency {
             it.moduleGroup == 'org.apache.hadoop'
         })
-        exclude(dependency('org.scala-lang:scala-compiler:2.10.6'))
-        exclude(dependency('org.scala-lang:scala-reflect:2.10.6'))
+        exclude(dependency('org.scala-lang::'))
+        exclude(dependency('org.scala-lang.modules::'))
+        exclude(dependency('org.scalatest::'))
     }
 }
 
@@ -59,10 +60,8 @@ dependencies{
     compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.0'
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.24'
     compile group: 'redis.clients', name: 'jedis', version:'2.9.0'
-    compile (group: 'org.apache.spark', name: 'spark-core_2.10', version:'2.1.0')
-    compile (group: 'org.apache.spark', name: 'spark-streaming_2.10', version:'2.1.0')
-    compile (group: 'org.apache.spark', name: 'spark-streaming-kafka_2.10', version:'1.6.3')
+    compile (group: 'org.apache.spark', name: 'spark-core_2.11', version:'2.0.0')
+    compile (group: 'org.apache.spark', name: 'spark-streaming_2.11', version:'2.0.0')
+    compile (group: 'org.apache.spark', name: 'spark-streaming-kafka_2.11', version:'1.6.3')
     compile group: 'org.apache.hadoop', name: 'hadoop-client', version:'2.6.0'
-//    compile group: 'org.apache.hama', name: 'hama-core', version: '0.7.1'
-//    compile group: 'redis.clients', name: 'jedis', version:'2.9.0'
 }

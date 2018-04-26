@@ -49,17 +49,17 @@ class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
   private def setOrUpdateOffsets(topics:Set[String],groupId:String)={
     topics.foreach(topic=>{
       var hasConsmed = true
-      println(kc)
+//      println(kc)
       val partitionsE = kc.getPartitions(Set(topic))
       if(partitionsE.isLeft) {
         throw new SparkException(s"get kafka partition failed: ${partitionsE.left.get}")
       }
       val partitions = partitionsE.right.get
       val consumerOffsetE = kc.getConsumerOffsets(groupId,partitions,1)
-      //以下是测试代码
+      /*//以下是测试代码
       consumerOffsetE.right.get.foreach(x=>{
         println(s"${x._1}:::::${x._2}")
-      })
+      })*/
 
       if(consumerOffsetE.isLeft)hasConsmed=false
       if(hasConsmed){//消费过
@@ -101,7 +101,7 @@ class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
         val offsets = leaderOffsets.map{
           case(tp,offset)=>(tp,offset.offset)
         }
-        offsets.foreach(x=>println(s"${x._1}:::::::::${x._2}:::::::${groupId}"))
+//        offsets.foreach(x=>println(s"${x._1}:::::::::${x._2}:::::::${groupId}"))
         var r = submitOffset(groupId,offsets)
         if(r.isLeft){
           println("wrong!!!"+r.left.get)
@@ -126,7 +126,7 @@ class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
     val offsetsList = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
     for (offsets <- offsetsList) {
       val topicAndPartition = TopicAndPartition(offsets.topic, offsets.partition)
-      println(s"${topicAndPartition}::${offsets.untilOffset}::${groupId}")
+//      println(s"${topicAndPartition}::${offsets.untilOffset}::${groupId}")
       val start = System.currentTimeMillis()
       val o = kc.setConsumerOffsets(groupId, Map((topicAndPartition, offsets.untilOffset)),1)
       val end = System.currentTimeMillis()
