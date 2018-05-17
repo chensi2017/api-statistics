@@ -109,6 +109,7 @@ class RedisOperation(zkAddr:String) {
       init()
     }
     val redisHandle = redisCluster.asInstanceOf[JedisPool].getResource
+//    val pool = redisCluster.asInstanceOf[JedisPool]
     redisHandle
   }
 }

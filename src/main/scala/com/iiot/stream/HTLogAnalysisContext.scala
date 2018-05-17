@@ -9,6 +9,7 @@ object HTLogAnalysisContext {
   val zkClent = new ZookeeperClient
   var km:KafkaManager = _
   def main(args: Array[String]): Unit = {
+    System.setProperty("HADOOP_USER_NAME","hdfs")
     //acquire zk address
     if(args.length==0){
       println("ERROR:Please input zookeeper address!!!")

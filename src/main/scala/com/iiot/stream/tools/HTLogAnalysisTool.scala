@@ -10,7 +10,7 @@ object HTLogAnalysisTool {
     val zk = zkClent.getConfingFromZk(ipAndPort, 30000)
     var configs = zkClent.getAll(zk, "/conf_htiiot/spark_streamming")
     Map("metadata.broker.list" -> configs.getProperty("kafka.broker.list"),
-      "group.id" -> "spark-test11",//先写死，等后期在zk上分配节点
+      "group.id" -> "spark-test111",//先写死，等后期在zk上分配节点
       "zookeeper.connect" -> configs.getProperty("zookeeper.list"),
       "auto.offset.reset" -> configs.getProperty("auto.offset.reset"),
       "queued.max.message.chunks" -> configs.getProperty("queued.max.message.chunks"),
@@ -25,6 +25,7 @@ object HTLogAnalysisTool {
       .set("spark.kryo.registrationRequired", "true")
       .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:+PrintGCTimeStamps")
       .set("spark.streaming.stopGracefullyOnShutdown","true") //当执行kill命令优雅的关闭job
+//        .setMaster("local[4]")
       //      .set("spark.shuffle.service.enabled","true")
       //      .set("spark.dynamicAllocation.enabled","true")//动态分配executor
       .registerKryoClasses(Array(classOf[Array[Item]],classOf[Item]))
