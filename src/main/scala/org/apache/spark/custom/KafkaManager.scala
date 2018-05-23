@@ -8,7 +8,6 @@ import org.apache.spark.rdd.RDD
 import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaCluster.LeaderOffset
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaCluster, KafkaUtils}
-
 import scala.reflect.ClassTag
 
 class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {

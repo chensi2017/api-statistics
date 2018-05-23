@@ -30,10 +30,21 @@ sourceSets {
 }
 
 
+jar{
+    manifest{
+        attributes(
+                "Manifest-Version": 1.0,
+                "Main-Class": 'com.iiot.stream.HTLogAnalysisContext')
+    }
+}
+
 shadowJar {
+    zip64 true
     baseName = 'spark-job'
     classifier = null
     version = null
+    exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
+
     dependencies {
         exclude(dependency('com.htiiot.store:jackson-databind'))
         exclude(dependency('org.apache.spark::2.0.0'))
@@ -57,6 +68,7 @@ repositories{
 
 dependencies{
     compile group: 'mysql', name: 'mysql-connector-java', version: '8.0.8-dmr'
+    compile group:'org.apache.spark', name: 'spark-sql_2.11', version: '2.0.0'
     compile group: 'com.alibaba', name: 'fastjson', version:'1.2.31'
     compile group: 'com.esotericsoftware', name: 'kryo', version: '4.0.0'
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.24'

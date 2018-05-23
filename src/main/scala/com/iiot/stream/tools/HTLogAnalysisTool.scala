@@ -25,7 +25,7 @@ object HTLogAnalysisTool {
       .set("spark.kryo.registrationRequired", "true")
       .set("spark.executor.extraJavaOptions","-XX:+UseG1GC -XX:+PrintGCDetails -XX:+PrintHeapAtGC -XX:+PrintGCTimeStamps")
       .set("spark.streaming.stopGracefullyOnShutdown","true") //当执行kill命令优雅的关闭job
-//        .setMaster("local[4]")
+        .setMaster("local[4]")
       //      .set("spark.shuffle.service.enabled","true")
       //      .set("spark.dynamicAllocation.enabled","true")//动态分配executor
       .registerKryoClasses(Array(classOf[Array[Item]],classOf[Item]))
