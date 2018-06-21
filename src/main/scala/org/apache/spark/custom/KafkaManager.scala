@@ -9,10 +9,11 @@ import org.apache.spark.streaming.StreamingContext
 import org.apache.spark.streaming.kafka.KafkaCluster.LeaderOffset
 import org.apache.spark.streaming.kafka.{HasOffsetRanges, KafkaCluster, KafkaUtils}
 import scala.reflect.ClassTag
+import scala.util.control.Breaks.breakable
 
 class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
   private var kc = new KafkaCluster(kafkaParams)
-  val k = KafkaCluster
+
   /**
     * 创建数据流
     */
@@ -45,22 +46,34 @@ class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
     * @param topics
     * @param groupId
     */
-  private def setOrUpdateOffsets(topics:Set[String],groupId:String)={
+   private def setOrUpdateOffsets(topics:Set[String],groupId:String)={
     topics.foreach(topic=>{
       var hasConsmed = true
-//      println(kc)
+
       val partitionsE = kc.getPartitions(Set(topic))
       if(partitionsE.isLeft) {
         throw new SparkException(s"get kafka partition failed: ${partitionsE.left.get}")
       }
+
       val partitions = partitionsE.right.get
+
       val consumerOffsetE = kc.getConsumerOffsets(groupId,partitions,1)
-      /*//以下是测试代码
+      //以下是测试代码
       consumerOffsetE.right.get.foreach(x=>{
         println(s"${x._1}:::::${x._2}")
-      })*/
-
-      if(consumerOffsetE.isLeft)hasConsmed=false
+      })
+      breakable {
+        consumerOffsetE.right.get.foreach(x => {
+          println(s"${x._1}:::::${x._2}")
+          if (x._2 == -1) {
+            hasConsmed = false
+            import scala.util.control.Breaks._
+            break
+          }
+        })
+      }
+//      println(consumerOffsetE.isLeft)
+//      if(consumerOffsetE.isLeft)hasConsmed=false
       if(hasConsmed){//消费过
         println("该groupid存在.....")
         /**
@@ -96,11 +109,16 @@ class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
           val leaderOffsetsE = kc.getEarliestLeaderOffsets(partitions)
           if(leaderOffsetsE.isLeft)throw new SparkException(s"get earliest leader offsets failed: ${leaderOffsetsE.left.get}")
           leaderOffsets = leaderOffsetsE.right.get
+        }else{
+          println("kakfa的设置为largest...")
+          val leaderOffsetE = kc.getLatestLeaderOffsets(partitions)
+          if(leaderOffsetE.isLeft)throw new SparkException(s"get largest leader offsets failed: ${leaderOffsetE.left.get}")
+          leaderOffsets = leaderOffsetE.right.get
         }
         val offsets = leaderOffsets.map{
           case(tp,offset)=>(tp,offset.offset)
         }
-//        offsets.foreach(x=>println(s"${x._1}:::::::::${x._2}:::::::${groupId}"))
+        offsets.foreach(x=>println(s"${x._1}:::::::::${x._2}:::::::${groupId}"))
         var r = submitOffset(groupId,offsets)
         if(r.isLeft){
           println("wrong!!!"+r.left.get)
@@ -125,11 +143,11 @@ class KafkaManager(val kafkaParams:Map[String,String]) extends Serializable {
     val offsetsList = rdd.asInstanceOf[HasOffsetRanges].offsetRanges
     for (offsets <- offsetsList) {
       val topicAndPartition = TopicAndPartition(offsets.topic, offsets.partition)
-//      println(s"${topicAndPartition}::${offsets.untilOffset}::${groupId}")
+      println(s"${topicAndPartition}::${offsets.untilOffset}::${groupId}")
       val start = System.currentTimeMillis()
       val o = kc.setConsumerOffsets(groupId, Map((topicAndPartition, offsets.untilOffset)),1)
       val end = System.currentTimeMillis()
-//      println(s"====提交offset耗时:${end-start}ms====")
+//      print(s"====提交offset耗时:${end-start}ms====")
       if (o.isLeft) {
         println(s"Error updating the offset to Kafka cluster: ${o.left.get}")
       }
