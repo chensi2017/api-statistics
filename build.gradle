@@ -34,18 +34,18 @@ jar{
     manifest{
         attributes(
                 "Manifest-Version": 1.0,
-                "Main-Class": 'com.iiot.stream.HTLogAnalysisContext')
+                "Main-Class": 'com.iiot.stream.HTLogAnalysisStandAlone')
     }
 }
 
 shadowJar {
     zip64 true
-    baseName = 'spark-job'
+    baseName = 'spark-api'
     classifier = null
     version = null
     exclude 'META-INF/*.RSA', 'META-INF/*.SF', 'META-INF/*.DSA'
 
-    dependencies {
+    /*dependencies {
         exclude(dependency('com.htiiot.store:jackson-databind'))
         exclude(dependency('org.apache.spark::2.0.0'))
         exclude(dependency {
@@ -54,7 +54,7 @@ shadowJar {
         exclude(dependency('org.scala-lang::'))
         exclude(dependency('org.scala-lang.modules::'))
         exclude(dependency('org.scalatest::'))
-    }
+    }*/
 }
 
 repositories{
