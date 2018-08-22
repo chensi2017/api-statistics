@@ -5,7 +5,8 @@ import com.iiot.stream.tools.ZookeeperClient
 import org.apache.spark.SparkConf
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-object HTLogAnalysisStandAlone {
+//单机模式数据源socket
+object HTLogAnalysisStandAloneSocket {
   val zkClent = new ZookeeperClient
   def main(args: Array[String]): Unit = {
     System.setProperty("HADOOP_USER_NAME","hdfs")

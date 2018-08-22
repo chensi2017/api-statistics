@@ -1,8 +1,9 @@
 package com.iiot.stream.tools
 
-import com.iiot.stream.HTLogAnalysisContext.{km, zkClent}
+import com.iiot.stream.HTLogAnalysisContext.zkClent
 import com.iiot.stream.bean.Item
 import org.apache.spark.SparkConf
+import org.apache.spark.custom.KafkaManager
 import org.apache.spark.streaming.StreamingContext
 
 object HTLogAnalysisTool {
@@ -31,7 +32,7 @@ object HTLogAnalysisTool {
       .registerKryoClasses(Array(classOf[Array[Item]],classOf[Item]))
   }
 
-  def createStream(scc: StreamingContext, topics: Set[String]) = {
+  def createStream(scc: StreamingContext, topics: Set[String],km:KafkaManager) = {
     km.createDirectStream(scc,topics)
   }
 

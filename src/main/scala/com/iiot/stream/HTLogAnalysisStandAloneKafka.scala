@@ -1,31 +1,24 @@
 package com.iiot.stream
 
+import com.iiot.offline.util.ProUtil
 import com.iiot.stream.base.{HTBatchStatistics, HTInputDStreamFormat, HTWindowStatistics}
-import com.iiot.stream.tools.{HTLogAnalysisTool, ZookeeperClient}
+import com.iiot.stream.tools.{HTLogAnalysisTool, OtherTools}
+import org.apache.spark.SparkConf
 import org.apache.spark.custom.KafkaManager
 import org.apache.spark.streaming.{Duration, StreamingContext}
 
-object HTLogAnalysisContext {
-  val zkClent = new ZookeeperClient
+//单机模式数据源kafka
+object HTLogAnalysisStandAloneKafka {
   def main(args: Array[String]): Unit = {
     System.setProperty("HADOOP_USER_NAME","hdfs")
-    //acquire zk address
-    if(args.length==0){
-      println("ERROR:Please input zookeeper address!!!")
-      return
-    }
-    val zkAddr = args(0)
-    val ssc = new StreamingContext(HTLogAnalysisTool.initSparkConf(),Duration(3000))
-    //create kafka stream
-    val topic = Set("api.log.filter")
-    val map = HTLogAnalysisTool.initKafkaParamters(args(0))
+    val map = OtherTools.toScalaMap(ProUtil.getInstance().getMap)
+    val zkAddr = map.get("log.zookeeper.host").get
+    val ssc = new StreamingContext(new SparkConf().setMaster("local[4]").setAppName("LogAnalysisStandAloneKafka"),Duration(3000))
     val km = new KafkaManager(map)
-    val stream = HTLogAnalysisTool.createStream(ssc,topic,km)
-
-    //transform stream
-    val itemStream = HTInputDStreamFormat.inputDStreamFormat(stream)
+    val kafkaStream = HTLogAnalysisTool.createStream(ssc,Set(map.get("topic").get),km)
+    //statistic module number and return openAPI stream
+    val itemStream = HTInputDStreamFormat.kafkaInputDstreamFormat(kafkaStream,zkAddr)
     itemStream.cache()
-
     //broad zookeeper address
     val zkAddrBro = ssc.sparkContext.broadcast(zkAddr)
 
@@ -37,13 +30,9 @@ object HTLogAnalysisContext {
     val windowStatistics = new HTWindowStatistics
     windowStatistics.windowStatistics(itemStream,zkAddrBro)
 
-
-
-    //提交offset
-    stream.foreachRDD(rdd=>{
+    kafkaStream.foreachRDD(rdd=>{
       km.updateOffsets(rdd)
     })
-
     ssc.start()
     ssc.awaitTermination()
   }
