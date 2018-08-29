@@ -6,7 +6,6 @@ import com.iiot.stream.bean.Item
 import com.iiot.stream.tools.{HTLogAnalysisTool, OtherTools, RedisOperation, TimeTools}
 import org.apache.spark.streaming.dstream.DStream
 import com.iiot.stream.bean.Log
-
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
@@ -31,7 +30,7 @@ object HTInputDStreamFormat {
       val jedis = RedisOperation.getInstance(zkAddr).getResource()
       val pl = jedis.pipelined()
       moduleMap.foreach(m=>{
-        pl.hincrBy("ht:log:module:"+time,m._1,moduleMap.getOrElse(m._1,0)+m._2)
+        pl.hincrBy("ht:log:module:"+time,m._1,m._2)
       })
       pl.sync()
       pl.close()

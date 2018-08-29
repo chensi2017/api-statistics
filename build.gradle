@@ -11,6 +11,10 @@ applicationDistribution.from('src/main/resources/conf'){
     into "bin/conf"
 }
 
+applicationDistribution.from('readme.txt'){
+    into "bin/conf"
+}
+
 sourceCompatibility = 1.8
 
 tasks.withType(JavaCompile){
